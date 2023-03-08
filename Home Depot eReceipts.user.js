@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Home Depot eReceipts
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  Download a csv of your Home Depot eReceipts
 // @author       You
 // @match        https://www.homedepot.com/order/view/ereceipt/summary
@@ -69,12 +69,14 @@ const addLink = (csv, name) => {
         let csv = keys.join(',') + '\r\n'
         let list = 'receiptNumber,date,' + listKeys.join(',') + '\r\n'
         let count = 0
+        let loader = 0
 
         items.forEach(row => {
+            loader += 1
             const entries = keys.map(key => row[key])
             csv += entries.join(',') + '\r\n'
-
-            fetch('https://www.homedepot.com/customer/order/v1/ereceipts/detail', {
+            setTimeout(() => {
+                fetch('https://www.homedepot.com/customer/order/v1/ereceipts/detail', {
                 method: 'POST',
                 headers: {
                     accept: 'application/json',
@@ -113,6 +115,7 @@ const addLink = (csv, name) => {
                 }
             })
                 .catch(error => console.error(`Error in fetch: ${error.message}`))
+            }, 500 * loader)
         })
 
         addLink(csv, 'Receipts')
